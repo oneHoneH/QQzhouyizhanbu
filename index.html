@@ -714,88 +714,89 @@
     </div>
 
     <script>
-        // 64卦数据库
-        const gua64 = {
-            // 乾宫
+        // 64卦数据库（yao从下到上：yao[0]=初爻, yao[5]=上爻；guaXiang先上卦再下卦）
+        const hexagramData = {
             "乾": { name: "乾", meaning: "元亨利贞", guaCi: "天行健，君子以自强不息。", yao: [1,1,1,1,1,1], guaXiang: "☰☰", change: "乾为天", bian: "乾" },
             "坤": { name: "坤", meaning: "元亨，利牝马之贞", guaCi: "地势坤，君子以厚德载物。", yao: [0,0,0,0,0,0], guaXiang: "☷☷", change: "坤为地", bian: "坤" },
-            "屯": { name: "屯", meaning: "元亨利贞，勿用有攸往", guaCi: "云雷屯，君子以经纶。", yao: [0,0,0,0,1,0], guaXiang: "☶☵", change: "水雷屯", bian: "屯" },
-            "蒙": { name: "蒙", meaning: "亨，匪我求童蒙，童蒙求我", guaCi: "山下出泉，蒙；君子以果行育德。", yao: [1,0,0,0,1,0], guaXiang: "☶☵", change: "山水蒙", bian: "蒙" },
-            "需": { name: "需", meaning: "有孚，光亨，贞吉", guaCi: "云上于天，需；君子以饮食宴乐。", yao: [0,0,0,1,1,0], guaXiang: "☵☰", change: "水天需", bian: "需" },
-            "讼": { name: "讼", meaning: "有孚，窒惕，中吉", guaCi: "天与水违行，讼；君子以作事谋始。", yao: [0,1,1,1,0,0], guaXiang: "☰☵", change: "天水讼", bian: "讼" },
-            "师": { name: "师", meaning: "贞，丈人吉，无咎", guaCi: "地中有水，师；君子以容民畜众。", yao: [0,0,0,1,0,0], guaXiang: "☷☵", change: "地水师", bian: "师" },
-            "比": { name: "比", meaning: "吉，原筮，元永贞", guaCi: "地上有水，比；先王以建万国，亲诸侯。", yao: [0,0,1,0,0,0], guaXiang: "☵☷", change: "水地比", bian: "比" },
-            "小畜": { name: "小畜", meaning: "亨，密云不雨，自我西郊", guaCi: "风行天上，小畜；君子以懿文德。", yao: [1,1,0,0,0,0], guaXiang: "☰☴", change: "风天小畜", bian: "小畜" },
-            "履": { name: "履", meaning: "履虎尾，不咥人，亨", guaCi: "上天下泽，履；君子以辨上下，定民志。", yao: [0,0,1,1,1,0], guaXiang: "☰☱", change: "天泽履", bian: "履" },
-            "泰": { name: "泰", meaning: "小往大来，吉亨", guaCi: "天地交，泰；后以财成天地之道。", yao: [0,0,1,1,1,0], guaXiang: "☷☰", change: "地天泰", bian: "泰" },
-            "否": { name: "否", meaning: "否之匪人，不利君子贞", guaCi: "天地不交，否；君子以俭德辟难。", yao: [0,1,1,1,0,0], guaXiang: "☰☷", change: "天地否", bian: "否" },
-            "同人": { name: "同人", meaning: "同人于野，亨，利涉大川", guaCi: "天与火，同人；君子以类族辨物。", yao: [0,1,1,0,1,0], guaXiang: "☲☰", change: "天火同人", bian: "同人" },
-            "大有": { name: "大有", meaning: "元亨", guaCi: "火在天上，大有；君子以遏恶扬善。", yao: [0,1,1,1,1,0], guaXiang: "☰☲", change: "火天大有", bian: "大有" },
-            "谦": { name: "谦", meaning: "亨，君子有终", guaCi: "地中有山，谦；君子以裒多益寡。", yao: [0,0,0,1,0,0], guaXiang: "☷☶", change: "地山谦", bian: "谦" },
-            "豫": { name: "豫", meaning: "利建侯行师", guaCi: "雷出地奋，豫；先王以作乐崇德。", yao: [0,0,1,0,0,0], guaXiang: "☳☷", change: "雷地豫", bian: "豫" },
-            "随": { name: "随", meaning: "元亨利贞，无咎", guaCi: "泽中有雷，随；君子以向晦入宴息。", yao: [0,0,1,0,1,0], guaXiang: "☱☳", change: "泽雷随", bian: "随" },
-            "蛊": { name: "蛊", meaning: "元亨利涉大川，先甲三日，后甲三日", guaCi: "山下有风，蛊；君子以振民育德。", yao: [0,1,0,0,0,0], guaXiang: "☴☶", change: "风山蛊", bian: "蛊" },
-            "临": { name: "临", meaning: "元亨利贞，至于八月有凶", guaCi: "泽上有地，临；君子以教思无穷。", yao: [0,0,1,1,0,0], guaXiang: "☷☱", change: "地泽临", bian: "临" },
-            "观": { name: "观", meaning: "盥而不荐，有孚颙若", guaCi: "风行地上，观；先王以省方观民设教。", yao: [0,0,0,1,1,0], guaXiang: "☴☷", change: "风地观", bian: "观" },
-            "噬嗑": { name: "噬嗑", meaning: "亨，利用狱", guaCi: "雷电噬嗑；先王以明罚敕法。", yao: [0,1,0,1,1,0], guaXiang: "☲☳", change: "火雷噬嗑", bian: "噬嗑" },
-            "贲": { name: "贲", meaning: "亨，小利有所往", guaCi: "山下有火，贲；君子以明庶政。", yao: [0,1,1,0,0,0], guaXiang: "☶☲", change: "山火贲", bian: "贲" },
-            "剥": { name: "剥", meaning: "不利有攸往", guaCi: "山附于地，剥；上以厚下安宅。", yao: [0,0,0,0,0,0], guaXiang: "☷☶", change: "山地剥", bian: "剥" },
-            "复": { name: "复", meaning: "亨，出入无疾，朋来无咎", guaCi: "雷在地中，复；先王以至日闭关。", yao: [0,0,0,1,0,0], guaXiang: "☳☷", change: "地雷复", bian: "复" },
-            "无妄": { name: "无妄", meaning: "元亨利贞，其匪正有眚", guaCi: "天下雷行，物与无妄；先王以茂对时。", yao: [1,0,0,0,1,0], guaXiang: "☳☰", change: "天雷无妄", bian: "无妄" },
-            "大畜": { name: "大畜", meaning: "利贞，不家食吉，利涉大川", guaCi: "天在山中，大畜；君子以多识前言往行。", yao: [1,0,0,1,1,0], guaXiang: "☶☰", change: "山天大畜", bian: "大畜" },
-            "颐": { name: "颐", meaning: "贞吉，观颐，自求口实", guaCi: "山下有雷，颐；君子以慎言语。", yao: [1,0,0,0,0,0], guaXiang: "☳☶", change: "山雷颐", bian: "颐" },
-            "大过": { name: "大过", meaning: "栋桡，利有攸往，亨", guaCi: "泽灭木，大过；君子以独立不惧。", yao: [0,1,0,0,0,0], guaXiang: "☱☴", change: "泽风大过", bian: "大过" },
-            "坎": { name: "坎", meaning: "习坎，有孚，维心亨", guaCi: "水洊至，习坎；君子以常德行。", yao: [0,1,0,0,1,0], guaXiang: "☵☵", change: "坎为水", bian: "坎" },
-            "咸": { name: "咸", meaning: "亨利贞，取女吉", guaCi: "山上有泽，咸；君子以虚受人。", yao: [0,1,0,1,0,0], guaXiang: "☱☶", change: "泽山咸", bian: "咸" },
-            "恒": { name: "恒", meaning: "亨，无咎，利贞", guaCi: "雷风，恒；君子以立不易方。", yao: [0,0,1,0,1,0], guaXiang: "☴☳", change: "雷风恒", bian: "恒" },
-            "遁": { name: "遁", meaning: "亨，小利贞", guaCi: "天下有山，遁；君子以远小人。", yao: [1,0,0,0,0,0], guaXiang: "☶☰", change: "天山遁", bian: "遁" },
-            "大壮": { name: "大壮", meaning: "利贞", guaCi: "雷在天上，大壮；君子以非礼勿履。", yao: [0,0,1,1,1,0], guaXiang: "☳☰", change: "雷天大壮", bian: "大壮" },
-            "晋": { name: "晋", meaning: "康侯用锡马蕃庶，昼日三接", guaCi: "明出地上，晋；君子以自昭明德。", yao: [0,0,0,1,1,0], guaXiang: "☷☲", change: "火地晋", bian: "晋" },
-            "明夷": { name: "明夷", meaning: "利艰贞", guaCi: "明入地中，明夷；君子以莅众。", yao: [0,1,1,0,0,0], guaXiang: "☲☷", change: "地火明夷", bian: "明夷" },
-            "家人": { name: "家人", meaning: "利女贞", guaCi: "风自火出，家人；君子以言有物。", yao: [1,1,0,1,0,0], guaXiang: "☲☴", change: "风火家人", bian: "家人" },
-            "睽": { name: "睽", meaning: "小事吉", guaCi: "上火下泽，睽；君子以同而异。", yao: [0,0,1,0,1,1], guaXiang: "☱☲", change: "火泽睽", bian: "睽" },
-            "蹇": { name: "蹇", meaning: "利西南，不利东北", guaCi: "山上有水，蹇；君子以反身修德。", yao: [0,0,0,1,0,0], guaXiang: "☶☵", change: "水山蹇", bian: "蹇" },
-            "解": { name: "解", meaning: "利西南，无所往，其来复吉", guaCi: "雷雨作，解；君子以赦过宥罪。", yao: [0,0,1,0,0,0], guaXiang: "☵☳", change: "雷水解", bian: "解" },
-            "损": { name: "损", meaning: "有孚，元吉，无咎", guaCi: "山下有泽，损；君子以惩忿窒欲。", yao: [1,0,0,1,0,0], guaXiang: "☱☶", change: "山泽损", bian: "损" },
-            "益": { name: "益", meaning: "利有攸往，利涉大川", guaCi: "风雷，益；君子以见善则迁。", yao: [0,0,1,0,0,0], guaXiang: "☳☴", change: "风雷益", bian: "益" },
-            "夬": { name: "夬", meaning: "扬于王庭，孚号有厉", guaCi: "泽上于天，夬；君子以施禄及下。", yao: [0,1,1,1,1,0], guaXiang: "☰☱", change: "泽天夬", bian: "夬" },
-            "姤": { name: "姤", meaning: "女壮，勿用取女", guaCi: "天下有风，姤；后以施命诰四方。", yao: [0,1,0,1,1,1], guaXiang: "☴☰", change: "天风姤", bian: "姤" },
-            "萃": { name: "萃", meaning: "亨，王假有庙", guaCi: "泽上于地，萃；君子以除戎器。", yao: [0,0,1,1,0,0], guaXiang: "☷☱", change: "泽地萃", bian: "萃" },
-            "升": { name: "升", meaning: "元亨，用见大人", guaCi: "地中生木，升；君子以顺德。", yao: [0,0,0,1,0,0], guaXiang: "☴☷", change: "地风升", bian: "升" },
-            "困": { name: "困", meaning: "亨，贞大人吉，无咎", guaCi: "泽无水，困；君子以致命遂志。", yao: [0,1,0,0,0,0], guaXiang: "☵☱", change: "泽水困", bian: "困" },
-            "井": { name: "井", meaning: "改邑不改井，无丧无得", guaCi: "木上有水，井；君子以劳民劝相。", yao: [0,0,0,1,0,1], guaXiang: "☵☴", change: "水风井", bian: "井" },
-            "革": { name: "革", meaning: "己日乃孚，元亨利贞", guaCi: "泽中有火，革；君子以治历明时。", yao: [0,1,0,1,0,0], guaXiang: "☲☱", change: "泽火革", bian: "革" },
-            "鼎": { name: "鼎", meaning: "元吉，亨", guaCi: "木上有火，鼎；君子以正位凝命。", yao: [0,1,0,0,1,0], guaXiang: "☲☴", change: "火风鼎", bian: "鼎" },
-            "震": { name: "震", meaning: "亨，震来虩虩，笑言哑哑", guaCi: "洊雷，震；君子以恐惧修身。", yao: [1,0,0,1,0,0], guaXiang: "☳☳", change: "震为雷", bian: "震" },
-            "艮": { name: "艮", meaning: "艮其背，不获其身", guaCi: "兼山，艮；君子以思不出其位。", yao: [0,0,1,0,0,0], guaXiang: "☶☶", change: "艮为山", bian: "艮" },
-            "渐": { name: "渐", meaning: "女归吉，利贞", guaCi: "山上有木，渐；君子以居贤德善俗。", yao: [0,0,0,1,0,0], guaXiang: "☴☶", change: "风山渐", bian: "渐" },
-            "归妹": { name: "归妹", meaning: "征凶，无攸利", guaCi: "泽上有雷，归妹；君子以永终知敝。", yao: [0,0,1,0,1,0], guaXiang: "☳☱", change: "雷泽归妹", bian: "归妹" },
-            "丰": { name: "丰", meaning: "亨，王假之，勿忧，宜日中", guaCi: "雷电皆至，丰；君子以折狱致刑。", yao: [0,1,1,0,1,0], guaXiang: "☲☳", change: "雷火丰", bian: "丰" },
-            "旅": { name: "旅", meaning: "小亨，旅贞吉", guaCi: "山上有火，旅；君子以明慎用刑。", yao: [0,1,0,0,0,0], guaXiang: "☲☶", change: "火山旅", bian: "旅" },
-            "巽": { name: "巽", meaning: "小亨，利攸往，利见大人", guaCi: "随风，巽；君子以申命行事。", yao: [1,0,1,0,1,0], guaXiang: "☴☴", change: "巽为风", bian: "巽" },
-            "兑": { name: "兑", meaning: "亨，利贞", guaCi: "丽泽，兑；君子以朋友讲习。", yao: [0,1,0,1,1,0], guaXiang: "☱☱", change: "兑为泽", bian: "兑" },
-            "涣": { name: "涣", meaning: "亨，王假有庙，利涉大川", guaCi: "风行水上，涣；先王以享于帝立庙。", yao: [0,0,1,0,0,0], guaXiang: "☵☴", change: "风水涣", bian: "涣" },
-            "节": { name: "节", meaning: "亨，苦节不可贞", guaCi: "泽上有水，节；君子以制数度。", yao: [1,0,0,1,0,0], guaXiang: "☵☱", change: "水泽节", bian: "节" },
-            "中孚": { name: "中孚", meaning: "豚鱼吉，利涉大川，利贞", guaCi: "泽上有风，中孚；君子以议狱缓死。", yao: [1,0,0,1,0,1], guaXiang: "☴☱", change: "风泽中孚", bian: "中孚" },
-            "小过": { name: "小过", meaning: "亨，利贞，可小事，不可大事", guaCi: "山上有雷，小过；君子以行过乎恭。", yao: [0,0,1,0,0,0], guaXiang: "☳☶", change: "雷山小过", bian: "小过" },
-            "既济": { name: "既济", meaning: "亨，小利贞，初吉终乱", guaCi: "水在火上，既济；君子以思患而预防之。", yao: [1,0,0,1,0,1], guaXiang: "☵☲", change: "水火既济", bian: "既济" },
-            "未济": { name: "未济", meaning: "亨，小狐汔济，濡其尾", guaCi: "火在水上，未济；君子以慎辨物居方。", yao: [0,1,0,0,1,0], guaXiang: "☲☵", change: "火水未济", bian: "未济" }
+            "屯": { name: "屯", meaning: "元亨利贞，勿用有攸往", guaCi: "云雷屯，君子以经纶。", yao: [1,0,0,0,1,0], guaXiang: "☵☳", change: "水雷屯", bian: "屯" },
+            "蒙": { name: "蒙", meaning: "亨。匪我求童蒙，童蒙求我", guaCi: "山下出泉，蒙；君子以果行育德。", yao: [0,1,0,0,0,1], guaXiang: "☶☵", change: "山水蒙", bian: "蒙" },
+            "需": { name: "需", meaning: "有孚，光亨，贞吉", guaCi: "云上于天，需；君子以饮食宴乐。", yao: [1,1,1,0,1,0], guaXiang: "☵☰", change: "水天需", bian: "需" },
+            "讼": { name: "讼", meaning: "有孚，窒惕，中吉，终凶", guaCi: "天与水违行，讼；君子以作事谋始。", yao: [0,1,0,1,1,1], guaXiang: "☰☵", change: "天水讼", bian: "讼" },
+            "师": { name: "师", meaning: "贞，丈人，吉无咎", guaCi: "地中有水，师；君子以容民畜众。", yao: [0,1,0,0,0,0], guaXiang: "☷☵", change: "地水师", bian: "师" },
+            "比": { name: "比", meaning: "吉。原筮，元永贞，无咎", guaCi: "地上有水，比；先王以建万国，亲诸侯。", yao: [0,0,0,0,1,0], guaXiang: "☵☷", change: "水地比", bian: "比" },
+            "小畜": { name: "小畜", meaning: "亨，密云不雨，自我西郊", guaCi: "风行天上，小畜；君子以懿文德。", yao: [1,1,1,0,1,1], guaXiang: "☴☰", change: "风天小畜", bian: "小畜" },
+            "履": { name: "履", meaning: "履虎尾，不咥人，亨", guaCi: "上天下泽，履；君子以辨上下，定民志。", yao: [1,1,0,1,1,1], guaXiang: "☰☱", change: "天泽履", bian: "履" },
+            "泰": { name: "泰", meaning: "小往大来，吉亨", guaCi: "天地交，泰；后以财成天地之道。", yao: [1,1,1,0,0,0], guaXiang: "☷☰", change: "地天泰", bian: "泰" },
+            "否": { name: "否", meaning: "否之匪人，不利君子贞，大往小来", guaCi: "天地不交，否；君子以俭德辟难。", yao: [0,0,0,1,1,1], guaXiang: "☰☷", change: "天地否", bian: "否" },
+            "同人": { name: "同人", meaning: "同人于野，亨，利涉大川，利君子贞", guaCi: "天与火，同人；君子以类族辨物。", yao: [1,0,1,1,1,1], guaXiang: "☰☲", change: "天火同人", bian: "同人" },
+            "大有": { name: "大有", meaning: "元亨", guaCi: "火在天上，大有；君子以遏恶扬善。", yao: [1,1,1,1,0,1], guaXiang: "☲☰", change: "火天大有", bian: "大有" },
+            "谦": { name: "谦", meaning: "亨，君子有终", guaCi: "地中有山，谦；君子以裒多益寡。", yao: [0,0,1,0,0,0], guaXiang: "☷☶", change: "地山谦", bian: "谦" },
+            "豫": { name: "豫", meaning: "利建侯行师", guaCi: "雷出地奋，豫；先王以作乐崇德。", yao: [0,0,0,1,0,0], guaXiang: "☳☷", change: "雷地豫", bian: "豫" },
+            "随": { name: "随", meaning: "元亨利贞，无咎", guaCi: "泽中有雷，随；君子以向晦入宴息。", yao: [1,0,0,1,1,0], guaXiang: "☱☳", change: "泽雷随", bian: "随" },
+            "蛊": { name: "蛊", meaning: "元亨，利涉大川", guaCi: "山下有风，蛊；君子以振民育德。", yao: [0,1,1,0,0,1], guaXiang: "☶☴", change: "山风蛊", bian: "蛊" },
+            "临": { name: "临", meaning: "元亨利贞，至于八月有凶", guaCi: "泽上有地，临；君子以教思无穷。", yao: [1,1,0,0,0,0], guaXiang: "☷☱", change: "地泽临", bian: "临" },
+            "观": { name: "观", meaning: "盥而不荐，有孚颙若", guaCi: "风行地上，观；先王以省方观民设教。", yao: [0,0,0,0,1,1], guaXiang: "☴☷", change: "风地观", bian: "观" },
+            "噬嗑": { name: "噬嗑", meaning: "亨，利用狱", guaCi: "雷电，噬嗑；先王以明罚敕法。", yao: [1,0,0,1,0,1], guaXiang: "☲☳", change: "火雷噬嗑", bian: "噬嗑" },
+            "贲": { name: "贲", meaning: "亨，小利有攸往", guaCi: "山下有火，贲；君子以明庶政，无敢折狱。", yao: [1,0,1,0,0,1], guaXiang: "☶☲", change: "山火贲", bian: "贲" },
+            "剥": { name: "剥", meaning: "不利有攸往", guaCi: "山附于地，剥；上以厚下安宅。", yao: [0,0,0,0,0,1], guaXiang: "☶☷", change: "山地剥", bian: "剥" },
+            "复": { name: "复", meaning: "亨，出入无疾，朋来无咎", guaCi: "雷在地中，复；先王以至日闭关。", yao: [1,0,0,0,0,0], guaXiang: "☷☳", change: "地雷复", bian: "复" },
+            "无妄": { name: "无妄", meaning: "元亨利贞，其匪正有眚", guaCi: "天下雷行，物与无妄；先王以茂对时育万物。", yao: [1,0,0,1,1,1], guaXiang: "☰☳", change: "天雷无妄", bian: "无妄" },
+            "大畜": { name: "大畜", meaning: "利贞，不家食吉，利涉大川", guaCi: "天在山中，大畜；君子以多识前言往行。", yao: [1,1,1,0,0,1], guaXiang: "☶☰", change: "山天大畜", bian: "大畜" },
+            "颐": { name: "颐", meaning: "贞吉，观颐，自求口实", guaCi: "山下有雷，颐；君子以慎言语，节饮食。", yao: [1,0,0,0,0,1], guaXiang: "☶☳", change: "山雷颐", bian: "颐" },
+            "大过": { name: "大过", meaning: "栋桡，利有攸往，亨", guaCi: "泽灭木，大过；君子以独立不惧，遁世无闷。", yao: [0,1,1,1,1,0], guaXiang: "☱☴", change: "泽风大过", bian: "大过" },
+            "坎": { name: "坎", meaning: "有孚，维心亨，行有尚", guaCi: "水洊至，习坎；君子以常德行，习教事。", yao: [0,1,0,0,1,0], guaXiang: "☵☵", change: "坎为水", bian: "坎" },
+            "离": { name: "离", meaning: "利贞，亨，畜牝牛吉", guaCi: "明两作，离；大人以继明照于四方。", yao: [1,0,1,1,0,1], guaXiang: "☲☲", change: "离为火", bian: "离" },
+            "咸": { name: "咸", meaning: "亨，利贞，取女吉", guaCi: "山上有泽，咸；君子以虚受人。", yao: [0,0,1,1,1,0], guaXiang: "☱☶", change: "泽山咸", bian: "咸" },
+            "恒": { name: "恒", meaning: "亨，无咎，利贞，利有攸往", guaCi: "雷风，恒；君子以立不易方。", yao: [0,1,1,1,0,0], guaXiang: "☳☴", change: "雷风恒", bian: "恒" },
+            "遁": { name: "遁", meaning: "亨，小利贞", guaCi: "天下有山，遁；君子以远小人，不恶而严。", yao: [0,0,1,1,1,1], guaXiang: "☰☶", change: "天山遁", bian: "遁" },
+            "大壮": { name: "大壮", meaning: "利贞", guaCi: "雷在天上，大壮；君子以非礼弗履。", yao: [1,1,1,1,0,0], guaXiang: "☳☰", change: "雷天大壮", bian: "大壮" },
+            "晋": { name: "晋", meaning: "康侯用锡马蕃庶，昼日三接", guaCi: "明出地上，晋；君子以自昭明德。", yao: [0,0,0,1,0,1], guaXiang: "☲☷", change: "火地晋", bian: "晋" },
+            "明夷": { name: "明夷", meaning: "利艰贞", guaCi: "明入地中，明夷；君子以莅众，用晦而明。", yao: [1,0,1,0,0,0], guaXiang: "☷☲", change: "地火明夷", bian: "明夷" },
+            "家人": { name: "家人", meaning: "利女贞", guaCi: "风自火出，家人；君子以言有物而行有恒。", yao: [1,0,1,0,1,1], guaXiang: "☴☲", change: "风火家人", bian: "家人" },
+            "睽": { name: "睽", meaning: "小事吉", guaCi: "上火下泽，睽；君子以同而异。", yao: [1,1,0,1,0,1], guaXiang: "☲☱", change: "火泽睽", bian: "睽" },
+            "蹇": { name: "蹇", meaning: "利西南，不利东北；利见大人，贞吉", guaCi: "山上有水，蹇；君子以反身修德。", yao: [0,0,1,0,1,0], guaXiang: "☵☶", change: "水山蹇", bian: "蹇" },
+            "解": { name: "解", meaning: "利西南，无所往，其来复吉", guaCi: "雷雨作，解；君子以赦过宥罪。", yao: [0,1,0,1,0,0], guaXiang: "☳☵", change: "雷水解", bian: "解" },
+            "损": { name: "损", meaning: "有孚，元吉，无咎，可贞，利有攸往", guaCi: "山下有泽，损；君子以惩忿窒欲。", yao: [1,1,0,0,0,1], guaXiang: "☶☱", change: "山泽损", bian: "损" },
+            "益": { name: "益", meaning: "利有攸往，利涉大川", guaCi: "风雷，益；君子以见善则迁，有过则改。", yao: [1,0,0,0,1,1], guaXiang: "☴☳", change: "风雷益", bian: "益" },
+            "夬": { name: "夬", meaning: "扬于王庭，孚号，有厉，告自邑，不利即戎", guaCi: "泽上于天，夬；君子以施禄及下，居德则忌。", yao: [1,1,1,1,1,0], guaXiang: "☱☰", change: "泽天夬", bian: "夬" },
+            "姤": { name: "姤", meaning: "女壮，勿用取女", guaCi: "天下有风，姤；后以施命诰四方。", yao: [0,1,1,1,1,1], guaXiang: "☰☴", change: "天风姤", bian: "姤" },
+            "萃": { name: "萃", meaning: "亨，王假有庙，利见大人，亨，利贞", guaCi: "泽上于地，萃；君子以除戎器，戒不虞。", yao: [0,0,0,1,1,0], guaXiang: "☱☷", change: "泽地萃", bian: "萃" },
+            "升": { name: "升", meaning: "元亨，用见大人，勿恤，南征吉", guaCi: "地中生木，升；君子以顺德，积小以高大。", yao: [0,1,1,0,0,0], guaXiang: "☷☴", change: "地风升", bian: "升" },
+            "困": { name: "困", meaning: "亨，贞大人吉，无咎，有言不信", guaCi: "泽无水，困；君子以致命遂志。", yao: [0,1,0,1,1,0], guaXiang: "☱☵", change: "泽水困", bian: "困" },
+            "井": { name: "井", meaning: "改邑不改井，无丧无得，往来井井", guaCi: "木上有水，井；君子以劳民劝相。", yao: [0,1,1,0,1,0], guaXiang: "☵☴", change: "水风井", bian: "井" },
+            "革": { name: "革", meaning: "巳日乃孚，元亨利贞，悔亡", guaCi: "泽中有火，革；君子以治历明时。", yao: [1,0,1,1,1,0], guaXiang: "☱☲", change: "泽火革", bian: "革" },
+            "鼎": { name: "鼎", meaning: "元吉，亨", guaCi: "木上有火，鼎；君子以正位凝命。", yao: [0,1,1,1,0,1], guaXiang: "☲☴", change: "火风鼎", bian: "鼎" },
+            "震": { name: "震", meaning: "亨，震来虩虩，笑言哑哑", guaCi: "洊雷，震；君子以恐惧修省。", yao: [1,0,0,1,0,0], guaXiang: "☳☳", change: "震为雷", bian: "震" },
+            "艮": { name: "艮", meaning: "艮其背，不获其身，行其庭，不见其人，无咎", guaCi: "兼山，艮；君子以思不出其位。", yao: [0,0,1,0,0,1], guaXiang: "☶☶", change: "艮为山", bian: "艮" },
+            "渐": { name: "渐", meaning: "女归吉，利贞", guaCi: "山上有木，渐；君子以居贤德善俗。", yao: [0,0,1,0,1,1], guaXiang: "☴☶", change: "风山渐", bian: "渐" },
+            "归妹": { name: "归妹", meaning: "征凶，无攸利", guaCi: "泽上有雷，归妹；君子以永终知敝。", yao: [1,1,0,1,0,0], guaXiang: "☳☱", change: "雷泽归妹", bian: "归妹" },
+            "丰": { name: "丰", meaning: "亨，王假之，勿忧，宜日中", guaCi: "雷电皆至，丰；君子以折狱致刑。", yao: [1,0,1,1,0,0], guaXiang: "☳☲", change: "雷火丰", bian: "丰" },
+            "旅": { name: "旅", meaning: "小亨，旅贞吉", guaCi: "山上有火，旅；君子以明慎用刑而不留狱。", yao: [0,0,1,1,0,1], guaXiang: "☲☶", change: "火山旅", bian: "旅" },
+            "巽": { name: "巽", meaning: "小亨，利有攸往，利见大人", guaCi: "随风，巽；君子以申命行事。", yao: [0,1,1,0,1,1], guaXiang: "☴☴", change: "巽为风", bian: "巽" },
+            "兑": { name: "兑", meaning: "亨，利贞", guaCi: "丽泽，兑；君子以朋友讲习。", yao: [1,1,0,1,1,0], guaXiang: "☱☱", change: "兑为泽", bian: "兑" },
+            "涣": { name: "涣", meaning: "亨，王假有庙，利涉大川，利贞", guaCi: "风行水上，涣；先王以享于帝立庙。", yao: [0,1,0,0,1,1], guaXiang: "☴☵", change: "风水涣", bian: "涣" },
+            "节": { name: "节", meaning: "亨，苦节不可贞", guaCi: "泽上有水，节；君子以制数度，议德行。", yao: [1,1,0,0,1,0], guaXiang: "☵☱", change: "水泽节", bian: "节" },
+            "中孚": { name: "中孚", meaning: "豚鱼吉，利涉大川，利贞", guaCi: "泽上有风，中孚；君子以议狱缓死。", yao: [1,1,0,0,1,1], guaXiang: "☴☱", change: "风泽中孚", bian: "中孚" },
+            "小过": { name: "小过", meaning: "亨，利贞，可小事，不可大事", guaCi: "山上有雷，小过；君子以行过乎恭，丧过乎哀。", yao: [0,0,1,1,0,0], guaXiang: "☳☶", change: "雷山小过", bian: "小过" },
+            "既济": { name: "既济", meaning: "亨小，利贞，初吉终乱", guaCi: "水在火上，既济；君子以思患而豫防之。", yao: [1,0,1,0,1,0], guaXiang: "☵☲", change: "水火既济", bian: "既济" },
+            "未济": { name: "未济", meaning: "亨，小狐汔济，濡其尾，无攸利", guaCi: "火在水上，未济；君子以慎辨物居方。", yao: [0,1,0,1,0,1], guaXiang: "☲☵", change: "火水未济", bian: "未济" }
         };
 
-        // 卦象符号映射
+        // 卦象符号映射（value从下到上）
         const trigramSymbols = {
             "☰": { name: "乾", value: [1,1,1] },
-            "☱": { name: "兑", value: [0,1,1] },
+            "☱": { name: "兑", value: [1,1,0] },
             "☲": { name: "离", value: [1,0,1] },
             "☳": { name: "震", value: [1,0,0] },
-            "☴": { name: "巽", value: [0,1,0] },
+            "☴": { name: "巽", value: [0,1,1] },
+            "☵": { name: "坎", value: [0,1,0] },
             "☶": { name: "艮", value: [0,0,1] },
-            "☷": { name: "坤", value: [0,0,0] },
-            "☵": { name: "坎", value: [1,1,0] }
+            "☷": { name: "坤", value: [0,0,0] }
         };
 
         // 状态变量
         let currentYao = [];
+        let dynamicFlags = [];  // 记录每爻是否为动爻（老阳/老阴）
         let currentGua = null;
         let isCasting = false;
         let castCount = 0;
@@ -847,7 +848,8 @@
                 
                 // 3正为阳爻，2正1反为阴爻
                 const yangCount = results.filter(r => r === 1).length;
-                const yaoValue = yangCount >= 2 ? 1 : 0;
+                const yaoValue = yangCount >= 2 ? 1 : 0;  // 2阳1阴=少阳, 3阳=老阳, 1阳2阴=少阴, 0阳=老阴
+                const isDynamic = (yangCount === 3 || yangCount === 0);  // 老阳或老阴=动爻
                 
                 // 更新铜钱显示
                 coins.forEach((coin, i) => {
@@ -861,6 +863,7 @@
                 });
 
                 currentYao.push(yaoValue);
+                dynamicFlags.push(isDynamic);
                 castCount++;
                 
                 updateProgress();
@@ -902,11 +905,15 @@
             const lineClass = yaoValue === 1 ? 'yang' : 'yin';
             const symbol = yaoValue === 1 ? '—' : '— —';
             const chineseNum = ['初', '二', '三', '四', '五', '上'][castCount - 1];
+            const isDyn = dynamicFlags[castCount - 1];
+            const dynMark = isDyn ? ' ○' : '';  // 动爻标记○
+            const yaoType = isDyn ? (yaoValue === 1 ? '老阳' : '老阴') : (yaoValue === 1 ? '少阳' : '少阴');
             
             yaoDiv.innerHTML = `
                 <span class="yao-number">${chineseNum}</span>
-                <span class="yao-line ${lineClass}"></span>
-                <span class="yao-symbol">${symbol}</span>
+                <span class="yao-line ${lineClass}" ${isDyn ? 'style="box-shadow:0 0 6px rgba(220,120,40,0.7);"' : ''}></span>
+                <span class="yao-symbol">${symbol}${dynMark}</span>
+                <span style="font-size:0.7em;color:#c87830;margin-left:4px;">${isDyn ? yaoType : ''}</span>
             `;
             
             yaoDisplayInner.appendChild(yaoDiv);
@@ -920,17 +927,39 @@
             // 查找对应卦象
             currentGua = findGua(currentYao);
             
-            if (currentGua) {
-                displayGuaResult();
-                aiSection.classList.remove('hidden');
+            // 兜底：如果数据库里没找到，根据上下卦自动生成
+            if (!currentGua) {
+                const lowerName = getTrigramNameByYao(currentYao.slice(0, 3));
+                const upperName = getTrigramNameByYao(currentYao.slice(3, 6));
+                const lowerSymbol = getTrigram(currentYao.slice(0, 3));
+                const upperSymbol = getTrigram(currentYao.slice(3, 6));
+                currentGua = {
+                    name: upperName + lowerName,
+                    meaning: '阴阳交变，万象更新',
+                    guaCi: upperName + '上' + lowerName + '下，阴阳交错，变化万千，当审时度势而行。',
+                    guaXiang: upperSymbol + lowerSymbol
+                };
             }
+            
+            displayGuaResult();
+            aiSection.classList.remove('hidden');
+        }
+
+        // 根据爻象获取三卦名称
+        function getTrigramNameByYao(yao) {
+            const key = yao.join('');
+            const nameMap = {
+                '111': '乾', '110': '兑', '101': '离', '100': '震',
+                '011': '巽', '010': '坎', '001': '艮', '000': '坤'
+            };
+            return nameMap[key] || '未知';
         }
 
         // 查找卦象
         function findGua(yao) {
             // 遍历64卦查找匹配
-            for (const key in gua64) {
-                const g = gua64[key];
+            for (const key in hexagramData) {
+                const g = hexagramData[key];
                 let match = true;
                 for (let i = 0; i < 6; i++) {
                     if (g.yao[i] !== yao[i]) {
@@ -952,26 +981,23 @@
             document.getElementById('guaCi').textContent = '《彖》曰：' + currentGua.guaCi;
             
             // 显示卦象符号
-            const upper = getTrigram(currentYao.slice(0, 3));
-            const lower = getTrigram(currentYao.slice(3, 6));
-            document.getElementById('benGuaSymbol').textContent = upper + lower;
+            const lowerTrigram = getTrigram(currentYao.slice(0, 3));
+            const upperTrigram = getTrigram(currentYao.slice(3, 6));
+            document.getElementById('benGuaSymbol').textContent = upperTrigram + lowerTrigram;
             
-            // 变卦（简化处理，实际需要根据动爻计算）
-            const bianIndex = findBianGua();
-            if (bianIndex !== -1) {
-                document.getElementById('bianGuaSymbol').textContent = gua64[bianIndex].guaXiang || (upper + lower);
+            // 变卦（只有动爻变：老阳→阴，老阴→阳）
+            const dongPositions = getDongYaoPosition();
+            const bianKey = findBianGua();
+            if (bianKey !== -1) {
+                const bianGua = hexagramData[bianKey];
+                document.getElementById('bianGuaSymbol').textContent = bianGua.guaXiang || (upperTrigram + lowerTrigram);
             } else {
-                document.getElementById('bianGuaSymbol').textContent = upper + lower;
+                // 无动爻时，变卦=本卦
+                document.getElementById('bianGuaSymbol').textContent = upperTrigram + lowerTrigram;
             }
             
             // 显示变爻信息
-            const dongYao = currentYao.map((y, i) => y).join('');
-            const dynamicYao = currentYao.map((y, i) => y === 1 ? 0 : 1);
-            const bianIndex2 = findGuaIndex(dynamicYao);
-            
-            if (bianIndex2 !== -1) {
-                document.getElementById('bianYaoHint').textContent = `动爻位置：${getDongYaoPosition()}`;
-            }
+            document.getElementById('bianYaoHint').textContent = `动爻：${dongPositions}`;
         }
 
         // 获取三爻卦
@@ -985,19 +1011,21 @@
             return '☷';
         }
 
-        // 查找变卦
+        // 查找变卦（只有动爻才变：老阳变阴、老阴变阳）
         function findBianGua() {
-            const dynamicYao = currentYao.map((y, i) => {
-                // 动爻变反
-                return y === 1 ? 0 : 1;
+            const bianYao = currentYao.map((y, i) => {
+                if (dynamicFlags[i]) {
+                    return y === 1 ? 0 : 1;  // 动爻取反
+                }
+                return y;  // 非动爻不变
             });
-            return findGuaIndex(dynamicYao);
+            return findGuaIndex(bianYao);
         }
 
         // 查找卦的索引
         function findGuaIndex(yao) {
-            for (const key in gua64) {
-                const g = gua64[key];
+            for (const key in hexagramData) {
+                const g = hexagramData[key];
                 let match = true;
                 for (let i = 0; i < 6; i++) {
                     if (g.yao[i] !== yao[i]) {
@@ -1010,21 +1038,23 @@
             return -1;
         }
 
-        // 获取动爻位置
+        // 获取动爻位置（基于铜钱掷卦时的老阳/老阴）
         function getDongYaoPosition() {
             const positions = [];
+            const names = ['初', '二', '三', '四', '五', '上'];
             for (let i = 0; i < 6; i++) {
-                if (currentYao[i] === 1) {
-                    positions.push(['初', '二', '三', '四', '五', '上'][i] + '爻');
+                if (dynamicFlags[i]) {
+                    const type = currentYao[i] === 1 ? '老阳' : '老阴';
+                    positions.push(names[i] + '爻(' + type + ')');
                 }
             }
-            return positions.length > 0 ? positions.join('、') : '无动爻';
+            return positions.length > 0 ? positions.join('、') : '无动爻（本卦=变卦）';
         }
 
         // ============================================
         // 【重要】在这里填入你的通义千问 API Key
         // ============================================
-        const API_KEY = 'sk-f513d3a141874ffe8f48ac8cff4acf4a';
+        const API_KEY = 'sk-bf03be237b19431e81a5006d8522a2d1';  // ← 把这里改成你的 Key
 
         // AI分析
         btnAI.addEventListener('click', async function() {
@@ -1090,6 +1120,7 @@
         // 重置
         function reset() {
             currentYao = [];
+            dynamicFlags = [];
             currentGua = null;
             isCasting = false;
             castCount = 0;
