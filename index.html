@@ -867,7 +867,7 @@
             border-radius: 30px;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-top: 20px;
+            min-width: 140px;
         }
 
         .btn-reset:hover {
@@ -1030,6 +1030,86 @@
             margin-top: 16px;
         }
 
+        .btn-share {
+            background: linear-gradient(135deg, #c4a35a 0%, #8b7355 100%);
+            color: #fff;
+            border: none;
+            padding: 12px 32px;
+            font-family: 'Noto Serif SC', serif;
+            font-size: 0.95rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(196, 163, 90, 0.25);
+            min-width: 140px;
+        }
+        .btn-share:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(196, 163, 90, 0.35);
+        }
+        .btn-share:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* 分享模态框 */
+        .share-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        .share-modal-overlay.active {
+            display: flex;
+        }
+        .share-modal {
+            background: var(--bg-primary);
+            border-radius: 16px;
+            padding: 20px;
+            max-width: 420px;
+            width: 90%;
+            text-align: center;
+        }
+        .share-modal h3 {
+            font-family: 'Noto Serif SC', serif;
+            color: var(--accent-dark);
+            margin-bottom: 12px;
+        }
+        .share-poster {
+            width: 100%;
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+        .share-download-btn {
+            background: linear-gradient(135deg, var(--accent-gold) 0%, var(--accent-dark) 100%);
+            color: #fff;
+            border: none;
+            padding: 10px 28px;
+            font-family: 'Noto Serif SC', serif;
+            font-size: 0.95rem;
+            border-radius: 20px;
+            cursor: pointer;
+            margin: 4px;
+            transition: all 0.3s ease;
+        }
+        .share-download-btn:hover {
+            transform: translateY(-1px);
+        }
+        .share-close-btn {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            padding: 10px 28px;
+            font-family: 'Noto Serif SC', serif;
+            font-size: 0.95rem;
+            border-radius: 20px;
+            cursor: pointer;
+            margin: 4px;
+        }
+
         @media (max-width: 600px) {
             .container { padding: 12px; }
             h1 { font-size: 1.6rem; }
@@ -1181,7 +1261,8 @@
                 <p id="aiResultText"></p>
             </div>
 
-            <div class="action-buttons">
+            <div class="action-buttons" id="aiActionButtons" style="display:none;">
+                <button class="btn-share" id="btnShare"> 一键分享</button>
                 <button class="btn-reset" id="btnReset">🔄 重新占卜</button>
             </div>
         </div>
@@ -1235,6 +1316,18 @@
         </div>
     </div>
 
+    <!-- 分享海报模态框 -->
+    <div class="share-modal-overlay" id="shareModal">
+        <div class="share-modal">
+            <h3>📿 分享占卜结果</h3>
+            <canvas id="sharePosterCanvas" class="share-poster" width="600" height="1000"></canvas>
+            <div>
+                <button class="share-download-btn" id="btnDownloadPoster">⬇️ 保存海报</button>
+                <button class="share-close-btn" id="btnCloseShareModal">关闭</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // 64卦数据库 - change字段为完整卦名（如"乾为天"）
         const hexagramData = {
@@ -1264,7 +1357,7 @@
             "复": { name: "复", meaning: "亨，出入无疾，朋来无咎", guaCi: "雷在地中，复；先王以至日闭关。", yao: [1,0,0,0,0,0], guaXiang: "☷☳", change: "地雷复", bian: "复", yaoText: ["不远复，无祗悔，元吉","休复，吉","频复厉无咎","中行独复","敦复无悔","迷复凶，有灾眚，用行师终有大败"], emoji: "🌿", nat: "雷在地中" },
             "无妄": { name: "无妄", meaning: "元亨利贞。其匪正有眚，不利有攸往", guaCi: "天下雷行，物与无妄；先王以茂对时育万物。", yao: [1,0,0,1,1,1], guaXiang: "☰☳", change: "天雷无妄", bian: "无妄", yaoText: ["无妄往，吉","不耕获，不菑畲，则利有攸往","无妄之灾，或系之牛，行人之得","可贞无咎","无妄之疾，勿药有喜","无妄行，有眚，无攸利"], emoji: "🌈", nat: "天下有雷" },
             "大畜": { name: "大畜", meaning: "利贞。不家食，吉。利涉大川", guaCi: "天在山中，大畜；君子以多识前言往行。", yao: [1,1,1,0,0,1], guaXiang: "☶☰", change: "山天大畜", bian: "大畜", yaoText: ["有厉利已","舆说辐","良马逐，利艰贞，曰闲舆卫","童牛之牿，元吉","豶豕之牙，吉","何天之衢，亨"], emoji: "🏔️", nat: "天在山中" },
-            "颐": { name: "颐", meaning: "贞吉。观颐，自求口实", guaCi: "山下有雷，颐；君子以慎言语，节饮食。", yao: [1,0,0,0,0,1], guaXiang: "☶☳", change: "山雷颐", bian: "颐", yaoText: ["舍尔灵龟，观我朵颐，凶","颠颐，拂经于丘颐，征凶","拂颐，贞凶，十年勿用","颠颐吉，虎视眈眈，其欲逐逐","拂经，居贞吉，不可涉大川","由颐，厉吉，利涉大川"], emoji: "🚶🏻‍♂️", nat:"山下有雷"},
+            "颐": { name: "颐", meaning: "贞吉。观颐，自求口实", guaCi: "山下有雷，颐；君子以慎言语，节饮食。", yao: [1,0,0,0,0,1], guaXiang: "☶☳", change: "山雷颐", bian: "颐", yaoText: ["舍尔灵龟，观我朵颐，凶","颠颐，拂经于丘颐，征凶","拂颐，贞凶，十年勿用","颠颐吉，虎视眈眈，其欲逐逐","拂经，居贞吉，不可涉大川","由颐，厉吉，利涉大川"], emoji: "🌄", nat: "山下有雷" },
             "大过": { name: "大过", meaning: "栋桡。利有攸往，亨", guaCi: "泽灭木，大过；君子以独立不惧，遁世无闷。", yao: [0,1,1,1,1,0], guaXiang: "☱☴", change: "泽风大过", bian: "大过", yaoText: ["藉用白茅，无咎","枯杨生稊，老夫得其女妻","栋桡，凶","栋隆，吉，有它吝","枯杨生华，老妇得其士夫","过涉灭顶，凶无咎"], emoji: "🌊", nat: "泽灭木" },
             "坎": { name: "坎", meaning: "有孚，维心亨，行有尚", guaCi: "水洊至，习坎；君子以常德行，习教事。", yao: [0,1,0,0,1,0], guaXiang: "☵☵", change: "坎为水", bian: "坎", yaoText: ["习坎，入于坎窞，凶","坎有险，求小得","来之坎坎，险且枕，入于坎窞","樽酒簋贰，用缶，纳约自牖","坎不盈，祗既平，无咎","系用徽纆，寘于丛棘，三岁不得"], emoji: "💧", nat: "水洊至" },
             "离": { name: "离", meaning: "利贞，亨。畜牝牛，吉", guaCi: "明两作，离；大人以继明照于四方。", yao: [1,0,1,1,0,1], guaXiang: "☲☲", change: "离为火", bian: "离", yaoText: ["履错然，敬之无咎","黄离，元吉","日昃之离，不鼓缶而歌","突如其来如，焚如死如弃如","出涕沱若，戚嗟若，吉","王用出征，有嘉折首，获匪其丑"], emoji: "🔥", nat: "明两作" },
@@ -1285,13 +1378,13 @@
             "萃": { name: "萃", meaning: "亨。王假有庙。利见大人，亨，利贞", guaCi: "泽上于地，萃；君子以除戎器，戒不虞。", yao: [0,0,0,1,1,0], guaXiang: "☱☷", change: "泽地萃", bian: "萃", yaoText: ["有孚不终，乃乱乃萃，若号，一握为笑","引吉无咎，孚乃利用禴","萃如嗟如，无攸利，往无咎","大吉无咎","萃有位无咎，匪孚，元永贞悔亡","赍咨涕洟，无咎"], emoji: "🌿", nat: "泽上有地" },
             "升": { name: "升", meaning: "元亨，用见大人，勿恤，南征吉", guaCi: "地中生木，升；君子以顺德，积小以高大。", yao: [0,1,1,0,0,0], guaXiang: "☷☴", change: "地风升", bian: "升", yaoText: ["允升，大吉","孚乃利用禴，无咎","升虚邑","王用亨于岐山，吉无咎","贞吉升阶","冥升，利于不息之贞"], emoji: "🌳", nat: "地中生木" },
             "困": { name: "困", meaning: "亨。贞大人吉，无咎。有言不信", guaCi: "泽无水，困；君子以致命遂志。", yao: [0,1,0,1,1,0], guaXiang: "☱☵", change: "泽水困", bian: "困", yaoText: ["臀困于株木，入于幽谷，三岁不觌","困于酒食，朱绂方来，利用享祀","困于石，据于蒺藜，入于其宫","来徐徐，困于金车，吝有终","劓刖困于赤绂，乃徐有说，利用祭祀","困于葛藟，于臲卼，曰动悔有悔"], emoji: "🏜️", nat: "泽无水" },
-            "井": { name: "井", meaning: "改邑不改井，无丧无得，往来井井", guaCi: "木上有水，井；君子以劳民劝相。", yao: [0,1,1,0,1,0], guaXiang: "☵☴", change: "水风井", bian: "井", yaoText: ["井泥不食，旧井无禽","井谷射鲋，瓮敝漏","井渫不食，为我心恻，可用汲","井甃无咎","井冽寒泉食","井收勿幕，有孚元吉"], emoji: "🪾", nat:"木上有水" },
+            "井": { name: "井", meaning: "改邑不改井，无丧无得，往来井井", guaCi: "木上有水，井；君子以劳民劝相。", yao: [0,1,1,0,1,0], guaXiang: "☵☴", change: "水风井", bian: "井", yaoText: ["井泥不食，旧井无禽","井谷射鲋，瓮敝漏","井渫不食，为我心恻，可用汲","井甃无咎","井冽寒泉食","井收勿幕，有孚元吉"], emoji: "🪣", nat: "木上有水" },
             "革": { name: "革", meaning: "巳日乃孚，元亨利贞，悔亡", guaCi: "泽中有火，革；君子以治历明时。", yao: [0,0,1,1,1,0], guaXiang: "☱☶", change: "泽火革", bian: "革", yaoText: ["巩用黄牛之革","已日乃革之，征吉无咎","征凶贞厉，革言三就，有孚","悔亡，有孚改命吉","大人虎变，未占有孚","君子豹变，小人革面，征凶"], emoji: "🌋", nat: "泽中有火" },
             "鼎": { name: "鼎", meaning: "元吉，亨", guaCi: "木上有火，鼎；君子以正位凝命。", yao: [0,1,1,1,0,1], guaXiang: "☲☴", change: "火风鼎", bian: "鼎", yaoText: ["鼎颠趾，利出否，得妾以其子","鼎有实，我仇有疾，不我能即，吉","鼎耳革，其行塞，雉膏不食","鼎折足，覆公餗，其形渥，凶","鼎黄耳金铉，利贞","鼎玉铉，大吉无不利"], emoji: "🔥", nat: "木上有火" },
             "震": { name: "震", meaning: "亨。震来虩虩，笑言哑哑。震惊百里，不丧匕鬯", guaCi: "洊雷，震；君子以恐惧修省。", yao: [1,0,0,1,0,0], guaXiang: "☳☳", change: "震为雷", bian: "震", yaoText: ["震来虩虩，后笑言哑哑，吉","震来厉，亿丧贝，跻于九陵，勿逐七日得","震苏苏，震行无眚","震遂泥","震往来厉，亿无丧有事","震索索，视矍矍，征凶"], emoji: "⚡", nat: "洊雷震" },
             "艮": { name: "艮", meaning: "艮其背，不获其身，行其庭，不见其人，无咎", guaCi: "兼山，艮；君子以思不出其位。", yao: [0,0,1,0,0,1], guaXiang: "☶☶", change: "艮为山", bian: "艮", yaoText: ["艮其趾，无咎，利永贞","艮其腓，不拯其随，其心不快","艮其限，列其夤，厉熏心","艮其身，无咎","艮其辅，言有序，悔亡","敦艮吉"], emoji: "🗻", nat: "兼山艮" },
             "渐": { name: "渐", meaning: "女归吉，利贞", guaCi: "山上有木，渐；君子以居贤德善俗。", yao: [0,0,1,0,1,1], guaXiang: "☴☶", change: "风山渐", bian: "渐", yaoText: ["鸿渐于干，小子厉有言无咎","鸿渐于磐，饮食衎衎吉","鸿渐于陆，夫征不复，妇孕不育","鸿渐于木，或得其桷，无咎","鸿渐于陵，妇三岁不孕","鸿渐于陆，其羽可用为仪，吉"], emoji: "🌲", nat: "山上有木" },
-            "归妹": { name: "归妹", meaning: "征凶，无攸利", guaCi: "泽上有雷，归妹；君子以永终知敝。", yao: [1,1,0,1,0,0], guaXiang: "☳☱", change: "雷泽归妹", bian: "归妹", yaoText: ["归妹以娣，跛能履，征吉","眇能视，利幽人之贞","归妹以须，反归以娣","归妹愆期，迟归有时","帝乙归妹，其君之袂不如其娣之袂良","女承筐无实，士刲羊无血"], emoji: "⛈️", nat: "泽上有雷" },
+            "归妹": { name: "归妹", meaning: "征凶，无攸利", guaCi: "泽上有雷，归妹；君子以永终知敝。", yao: [1,1,0,1,0,0], guaXiang: "☳☱", change: "雷泽归妹", bian: "归妹", yaoText: ["归妹以娣，跛能履，征吉","眇能视，利幽人之贞","归妹以须，反归以娣","归妹愆期，迟归有时","帝乙归妹，其君之袂不如其娣之袂良","女承筐无实，士刲羊无血"], emoji: "🌩️", nat: "泽上有雷" },
             "丰": { name: "丰", meaning: "亨，王假之，勿忧，宜日中", guaCi: "雷电皆至，丰；君子以折狱致刑。", yao: [1,0,1,1,0,0], guaXiang: "☳☲", change: "雷火丰", bian: "丰", yaoText: ["遇其配主，虽旬无咎，往有尚","丰其蔀，日中见斗，往得疑疾","丰其沛，日中见沬，折其右肱","丰其蔀，日中见斗，遇其夷主吉","来章有庆誉吉","丰其屋，蔀其家，窥其户，阒其无人"], emoji: "🌩️", nat: "雷电皆至" },
             "旅": { name: "旅", meaning: "小亨，旅贞吉", guaCi: "山上有火，旅；君子以明慎用刑而不留狱。", yao: [0,0,1,1,0,1], guaXiang: "☲☶", change: "火山旅", bian: "旅", yaoText: ["旅琐琐，斯其所取灾","旅即次，怀其资，得童仆贞","旅焚其次，丧其童仆，贞厉","旅于处，得其资斧，我心不快","射雉一矢亡，终以誉命","鸟焚其巢，旅人先笑后号咷，丧牛于易"], emoji: "🏕️", nat: "山上有火" },
             "巽": { name: "巽", meaning: "小亨，利有攸往，利见大人", guaCi: "随风，巽；君子以申命行事。", yao: [0,1,1,0,1,1], guaXiang: "☴☴", change: "巽为风", bian: "巽", yaoText: ["进退，利武人之贞","巽在床下，用史巫纷若吉无咎","频巽吝","悔亡，田获三品","贞吉悔亡无不利，无初有终","巽在床下，丧其资斧，贞凶"], emoji: "🍃", nat: "随风巽" },
@@ -1332,6 +1425,8 @@
         let isCasting = false;
         let castCount = 0;
         let activeHexagramIdx = null;
+        let extractedConclusion = '';
+        let extractedFortuneTag = '';
 
         const btnCast = document.getElementById('btnCast');
         const btnAI = document.getElementById('btnAI');
@@ -1621,7 +1716,7 @@
         }
 
         // AI功能
-        const API_KEY = 'sk-3d243c621dce47f3a97f0fc8bbdc54ef'
+        const API_KEY = 'sk-3d243c621dce47f3a97f0fc8bbdc54ef';
 
         btnAI.addEventListener('click', async function() {
             if (!currentGua || !currentGua.yaoText) {
@@ -1636,8 +1731,35 @@
                 const question = questionInput.value || '事业发展';
                 const analysis = await callTongyiAI(question, currentGua);
                 
+                // 提取结语（从"结语"段落到末尾）
+                // 注意：AI返回文本中\n已被替换为<br>，正则需兼容两种情况
+                extractedConclusion = '';
+                // 方案1：匹配 ### 结语 或 ## 结语
+                let conclusionMatch = analysis.match(/#{2,3}\s*结语\s*(?:[\n：:]|<br\s*\/?>)\s*(?:<br\s*\/?>)*\s*([\s\S]*)/i);
+                if (conclusionMatch) {
+                    extractedConclusion = conclusionMatch[1].replace(/<br\s*\/?>/gi, '\n').trim();
+                }
+                // 方案2：匹配 **结语** 或 *结语* 或纯文本"结语："
+                if (!extractedConclusion) {
+                    const boldMatch = analysis.match(/\*{0,3}结语\*{0,3}\s*(?:[\n：:]|<br\s*\/?>)\s*(?:<br\s*\/?>)*\s*([\s\S]*)/i);
+                    if (boldMatch) {
+                        extractedConclusion = boldMatch[1].replace(/<br\s*\/?>/gi, '\n').trim();
+                    }
+                }
+                // 方案3：兜底——取AI回复的最后一段非空文本作为结语
+                if (!extractedConclusion) {
+                    const plainText = analysis.replace(/<br\s*\/?>/gi, '\n').replace(/#{1,6}\s*/g, '').replace(/\*{1,3}([^*]+)\*{1,3}/g, '$1').trim();
+                    const paragraphs = plainText.split(/\n\s*\n/).filter(p => p.trim().length > 0);
+                    if (paragraphs.length > 0) {
+                        extractedConclusion = paragraphs[paragraphs.length - 1].trim();
+                    }
+                }
+                // 提取运势标签（从整体吉凶段落或全文推断）
+                extractedFortuneTag = extractFortuneTag(analysis);
+                
                 aiResultText.innerHTML = analysis;
                 aiResult.classList.add('active');
+                document.getElementById('aiActionButtons').style.display = 'flex';
             } catch (error) {
                 aiResultText.innerHTML = `<b>抱歉，AI分析出错：</b><br>${error.message}<br><br>请检查网络连接或 API Key 是否正确。`;
                 aiResult.classList.add('active');
@@ -1671,7 +1793,8 @@
 2. 现状格局：客观剖析当下真实处境、内在问题、外部环境，直面不足与隐患
 3. 发展趋势：理性推演后续走向，点明顺逆起伏、时机拐点、潜在阻碍与变故
 4. 整体吉凶：公允判定全局运势，区分吉中藏凶、凶里含吉、平稳有忧等真实格局，直言凶险不利之处
-5. 务实建议：依卦理给出贴合实际的行事方针，宜进宜退、宜守宜争、避险止损尽数据实而言，不空洞虚言吉利。`;
+5. 务实建议：依卦理给出贴合实际的行事方针，宜进宜退、宜守宜争、避险止损尽数据实而言，不空洞虚言吉利。
+6. 结语：用一两句话凝练总结本次占卜的核心启示，要求简洁有力、发人深省，作为整篇解读的收尾。`;
 
             const yaoTextInfo = gua.yaoText ? gua.yaoText.map((t, i) => {
                 const yaoValue = currentYao[i];
@@ -1926,6 +2049,368 @@ ${yaoTextInfo}
 
         btnCast.addEventListener('click', castCoins);
         btnReset.addEventListener('click', reset);
+
+        // ====== 分享功能 ======
+        const btnShare = document.getElementById('btnShare');
+        const shareModal = document.getElementById('shareModal');
+        const btnCloseShareModal = document.getElementById('btnCloseShareModal');
+        const btnDownloadPoster = document.getElementById('btnDownloadPoster');
+
+        btnShare.addEventListener('click', function() {
+            drawSharePoster();
+            shareModal.classList.add('active');
+        });
+
+        btnCloseShareModal.addEventListener('click', function() {
+            shareModal.classList.remove('active');
+        });
+
+        shareModal.addEventListener('click', function(e) {
+            if (e.target === shareModal) {
+                shareModal.classList.remove('active');
+            }
+        });
+
+        btnDownloadPoster.addEventListener('click', function() {
+            const canvas = document.getElementById('sharePosterCanvas');
+            const link = document.createElement('a');
+            const guaName = currentGua ? currentGua.name : '卦';
+            link.download = '易占AI·' + guaName + '卦·占卜结果.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+
+        // 从AI分析文本中提取运势标签
+        function extractFortuneTag(text) {
+            // 统一将<br>替换为\n，方便后续正则匹配
+            const normalizedText = text.replace(/<br\s*\/?>/gi, '\n');
+            // 尝试从整体吉凶段落提取
+            const jiXiongMatch = normalizedText.match(/#{1,4}\s*整体吉凶\s*[：:\n]\s*([\s\S]*?)(?=\n#{1,4}|\n\n##)/);
+            if (jiXiongMatch) {
+                const section = jiXiongMatch[1];
+                const tagMap = [
+                    { keywords: ['大?吉', '上吉', '大吉大利', '吉无不利'], tag: '大吉' },
+                    { keywords: ['吉', '元吉', '贞吉'], tag: '吉' },
+                    { keywords: ['小吉', '偏吉'], tag: '小吉' },
+                    { keywords: ['平', '中平', '平稳', '持平', '吉凶参半', '参半'], tag: '平' },
+                    { keywords: ['小凶', '偏凶'], tag: '小凶' },
+                    { keywords: ['凶', '大凶', '不利', '咎'], tag: '凶' },
+                ];
+                for (const item of tagMap) {
+                    for (const kw of item.keywords) {
+                        if (new RegExp(kw).test(section)) {
+                            return item.tag;
+                        }
+                    }
+                }
+            }
+            // 全文兜底
+            const fullTagMap = [
+                { keywords: ['大?吉', '上吉', '大吉大利'], tag: '大吉' },
+                { keywords: ['元吉', '贞吉', '无不利'], tag: '吉' },
+                { keywords: ['凶', '大凶', '不利'], tag: '凶' },
+                { keywords: ['平', '中平', '平稳'], tag: '平' },
+            ];
+            for (const item of fullTagMap) {
+                for (const kw of item.keywords) {
+                    if (new RegExp(kw).test(normalizedText)) return item.tag;
+                }
+            }
+            return '中平';
+        }
+
+        // Canvas 多行文字绘制工具
+        function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+            const chars = text.split('');
+            let line = '';
+            let currentY = y;
+            for (let i = 0; i < chars.length; i++) {
+                const testLine = line + chars[i];
+                const metrics = ctx.measureText(testLine);
+                if (metrics.width > maxWidth && line.length > 0) {
+                    ctx.fillText(line, x, currentY);
+                    line = chars[i];
+                    currentY += lineHeight;
+                } else {
+                    line = testLine;
+                }
+            }
+            if (line.length > 0) {
+                ctx.fillText(line, x, currentY);
+                currentY += lineHeight;
+            }
+            return currentY;
+        }
+
+        // 绘制单根爻线
+        function drawYaoLine(ctx, x, y, width, isYang, isDynamic) {
+            ctx.strokeStyle = isDynamic ? '#c4a35a' : '#2c2c2c';
+            ctx.lineWidth = isDynamic ? 4 : 3;
+            if (isYang) {
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x + width, y);
+                ctx.stroke();
+            } else {
+                const gap = width * 0.12;
+                const segW = (width - gap) / 2;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x + segW, y);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(x + segW + gap, y);
+                ctx.lineTo(x + width, y);
+                ctx.stroke();
+            }
+            // 动爻标记小圆点
+            if (isDynamic) {
+                ctx.fillStyle = '#c4a35a';
+                ctx.beginPath();
+                ctx.arc(x + width / 2, y + 10, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // 绘制完整卦象（六爻，从下到上）
+        function drawHexagram(ctx, centerX, startY, yao, lineSpacing, lineWidth, dynamicFlagsArr) {
+            // yao[0]=初爻在最下，yao[5]=上爻在最上
+            // 我们从上往下画：yao[5] 在 startY，yao[0] 在 startY + 5*lineSpacing
+            for (let i = 0; i < 6; i++) {
+                const y = startY + (5 - i) * lineSpacing;
+                const isDyn = dynamicFlagsArr && dynamicFlagsArr[i] ? true : false;
+                drawYaoLine(ctx, centerX - lineWidth / 2, y, lineWidth, yao[i] === 1, isDyn);
+            }
+        }
+
+        // 绘制主海报
+        function drawSharePoster() {
+            const canvas = document.getElementById('sharePosterCanvas');
+            const W = 600, H = 1000;
+            canvas.width = W;
+            canvas.height = H;
+            const ctx = canvas.getContext('2d');
+
+            // 背景：米白渐变
+            const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
+            bgGrad.addColorStop(0, '#faf8f5');
+            bgGrad.addColorStop(0.5, '#f5f0e8');
+            bgGrad.addColorStop(1, '#ede6d8');
+            ctx.fillStyle = bgGrad;
+            ctx.fillRect(0, 0, W, H);
+
+            // 顶部装饰线
+            ctx.strokeStyle = '#d4c9b8';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(40, 50);
+            ctx.lineTo(W - 40, 50);
+            ctx.stroke();
+
+            // 顶部小字
+            ctx.fillStyle = '#8b7355';
+            ctx.font = '14px "Noto Serif SC", "STSong", "KaiTi", serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('易 占 AI · 铜 钱 沙 盘', W / 2, 38);
+
+            // ===== 运势标签 =====
+            const tag = extractedFortuneTag || '中平';
+            const tagColors = {
+                '大吉': '#b8860b', '吉': '#6b8e23', '小吉': '#7ca87c',
+                '平': '#8b7355', '小凶': '#cd853f', '凶': '#8b0000', '中平': '#8b7355'
+            };
+            const tagColor = tagColors[tag] || '#8b7355';
+            const tagText = '运 势：' + tag;
+            ctx.font = 'bold 18px "Noto Serif SC", "STSong", "KaiTi", serif';
+            const tagW = ctx.measureText(tagText).width + 30;
+            const tagX = (W - tagW) / 2;
+            const tagY = 68;
+            ctx.fillStyle = tagColor;
+            roundRect(ctx, tagX, tagY, tagW, 30, 15, true, false);
+            ctx.fillStyle = '#fff';
+            ctx.textAlign = 'center';
+            ctx.fillText(tagText, W / 2, tagY + 21);
+
+            // ===== 卦名 =====
+            let yPos = 140;
+            ctx.font = 'bold 42px "Noto Serif SC", "STSong", "KaiTi", serif';
+            ctx.fillStyle = '#1a1a1a';
+            ctx.textAlign = 'center';
+            const guaTitle = currentGua ? currentGua.name + '卦' : '';
+            ctx.fillText(guaTitle, W / 2, yPos);
+
+            // emoji 自然象
+            yPos += 42;
+            ctx.font = '36px sans-serif';
+            const emoji = currentGua ? (currentGua.emoji || '') : '';
+            if (emoji) ctx.fillText(emoji, W / 2, yPos);
+
+            // ===== 卦辞 =====
+            yPos += 50;
+            ctx.font = '20px "Noto Serif SC", "STSong", "KaiTi", serif';
+            ctx.fillStyle = '#2c2c2c';
+            const guaMeaning = currentGua ? (currentGua.meaning || '') : '';
+            ctx.fillText(guaMeaning, W / 2, yPos);
+
+            // ===== 象辞（带框） =====
+            yPos += 45;
+            const xiangText = currentGua ? ('《象》曰：' + currentGua.guaCi) : '';
+            ctx.font = '16px "Noto Serif SC", "STSong", "KaiTi", serif';
+            ctx.fillStyle = '#5a5a5a';
+            const xiangMetrics = ctx.measureText(xiangText);
+            const xiangW = xiangMetrics.width + 40;
+            const xiangH = 44;
+            const xiangX = (W - xiangW) / 2;
+            // 象辞背景框
+            ctx.fillStyle = 'rgba(255,255,255,0.7)';
+            roundRect(ctx, xiangX, yPos - 24, xiangW, xiangH, 10, true, false);
+            ctx.strokeStyle = '#d4c9b8';
+            ctx.lineWidth = 1;
+            roundRect(ctx, xiangX, yPos - 24, xiangW, xiangH, 10, false, true);
+            ctx.fillStyle = '#5a5a5a';
+            ctx.textAlign = 'center';
+            ctx.fillText(xiangText, W / 2, yPos + 2);
+
+            // ===== 分隔线 =====
+            yPos += 50;
+            ctx.strokeStyle = '#d4c9b8';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(100, yPos);
+            ctx.lineTo(W - 100, yPos);
+            ctx.stroke();
+
+            // ===== 本卦 + 变卦 =====
+            yPos += 40;
+            ctx.font = '16px "Noto Serif SC", "STSong", "KaiTi", serif';
+            ctx.fillStyle = '#8b7355';
+
+            const leftX = W * 0.30;
+            const rightX = W * 0.70;
+            const guaTopY = yPos + 10;
+            const lineSpacing = 18;
+            const lineWidth = 56;
+
+            // 本卦
+            ctx.textAlign = 'center';
+            const benGuaEmoji = currentGua ? (currentGua.emoji || '') : '';
+            ctx.fillText('本卦 ' + benGuaEmoji, leftX, yPos);
+            if (currentGua) {
+                drawHexagram(ctx, leftX, guaTopY, currentGua.yao, lineSpacing, lineWidth, dynamicFlags);
+                const lowerTri = getTrigram(currentYao.slice(0, 3));
+                const upperTri = getTrigram(currentYao.slice(3, 6));
+                const lowerName = getTrigramNameByYao(currentYao.slice(0, 3));
+                const upperName = getTrigramNameByYao(currentYao.slice(3, 6));
+                ctx.font = '13px "Noto Serif SC", "STSong", "KaiTi", serif';
+                ctx.fillStyle = '#5a5a5a';
+                ctx.fillText(upperTri + '上 ' + lowerTri + '下', leftX, guaTopY + 6 * lineSpacing + 18);
+                ctx.fillText(upperName + '上 ' + lowerName + '下', leftX, guaTopY + 6 * lineSpacing + 38);
+            }
+
+            // 变卦
+            ctx.font = '16px "Noto Serif SC", "STSong", "KaiTi", serif';
+            ctx.fillStyle = '#8b7355';
+            ctx.fillText('变卦', rightX, yPos);
+            const bianYaoArr = currentYao ? currentYao.map((y, i) => dynamicFlags[i] ? (y === 1 ? 0 : 1) : y) : [];
+            const bianKey = findBianGua();
+            const bianGuaData = bianKey !== -1 ? hexagramData[bianKey] : null;
+            drawHexagram(ctx, rightX, guaTopY, bianYaoArr, lineSpacing, lineWidth, null);
+            if (bianGuaData) {
+                const bLowerTri = getTrigram(bianYaoArr.slice(0, 3));
+                const bUpperTri = getTrigram(bianYaoArr.slice(3, 6));
+                const bLowerName = getTrigramNameByYao(bianYaoArr.slice(0, 3));
+                const bUpperName = getTrigramNameByYao(bianYaoArr.slice(3, 6));
+                ctx.font = '13px "Noto Serif SC", "STSong", "KaiTi", serif';
+                ctx.fillStyle = '#5a5a5a';
+                ctx.fillText(bUpperTri + '上 ' + bLowerTri + '下', rightX, guaTopY + 6 * lineSpacing + 18);
+                ctx.fillText(bUpperName + '上 ' + bLowerName + '下', rightX, guaTopY + 6 * lineSpacing + 38);
+            }
+
+            // ===== 动爻提示 =====
+            const dongPositions = getDongYaoPosition();
+            yPos = guaTopY + 6 * lineSpacing + 60;
+            ctx.font = '14px "Noto Serif SC", "STSong", "KaiTi", serif';
+            ctx.fillStyle = '#c4a35a';
+            ctx.textAlign = 'center';
+            ctx.fillText('动爻：' + dongPositions, W / 2, yPos);
+
+            // ===== 分隔线 =====
+            yPos += 30;
+            ctx.strokeStyle = '#d4c9b8';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(100, yPos);
+            ctx.lineTo(W - 100, yPos);
+            ctx.stroke();
+
+            // ===== 结语 =====
+            yPos += 35;
+            ctx.font = 'bold 18px "Noto Serif SC", "STSong", "KaiTi", serif';
+            ctx.fillStyle = '#8b7355';
+            ctx.textAlign = 'left';
+            ctx.fillText('✦ 结语', 50, yPos);
+
+            yPos += 30;
+            ctx.font = '15px "Noto Serif SC", "STSong", "KaiTi", serif';
+            ctx.fillStyle = '#3a3a3a';
+            // 清理结语中的 markdown 标记
+            let cleanConclusion = extractedConclusion || '（暂无结语）';
+            cleanConclusion = cleanConclusion.replace(/\*\*/g, '').replace(/#{1,3}\s*/g, '').trim();
+            // 分行处理（按换行符）
+            const conclusionLines = cleanConclusion.split('\n');
+            for (const line of conclusionLines) {
+                if (line.trim() === '') { yPos += 8; continue; }
+                const cleanLine = line.trim();
+                ctx.textAlign = 'left';
+                yPos = wrapText(ctx, cleanLine, 50, yPos, W - 100, 24);
+                yPos += 4;
+            }
+
+            // ===== 底部装饰 =====
+            const footerY = H - 55;
+            ctx.strokeStyle = '#d4c9b8';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(40, footerY);
+            ctx.lineTo(W - 40, footerY);
+            ctx.stroke();
+
+            // 日期
+            const now = new Date();
+            const dateStr = now.getFullYear() + '年' + (now.getMonth() + 1) + '月' + now.getDate() + '日';
+            ctx.font = '12px "Noto Serif SC", "STSong", "KaiTi", serif';
+            ctx.fillStyle = '#a0a0a0';
+            ctx.textAlign = 'center';
+            ctx.fillText(dateStr, W / 2, footerY + 18);
+
+            ctx.fillText('易占AI · 仅供参考 · 心诚则灵', W / 2, footerY + 34);
+
+            // 底部八卦装饰圆
+            ctx.strokeStyle = '#d4c9b8';
+            ctx.lineWidth = 0.5;
+            for (let r = 12; r <= 30; r += 9) {
+                ctx.beginPath();
+                ctx.arc(W / 2, footerY - 16, r, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+        }
+
+        // 圆角矩形工具
+        function roundRect(ctx, x, y, w, h, r, fill, stroke) {
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + w - r, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+            ctx.lineTo(x + w, y + h - r);
+            ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            ctx.lineTo(x + r, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.closePath();
+            if (fill) ctx.fill();
+            if (stroke) ctx.stroke();
+        }
 
         initHexagramGrid();
         reset();
