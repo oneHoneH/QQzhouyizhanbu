@@ -4,7 +4,7 @@
 ✨ AI周易占卜产品
 
 Demo：
-https://xxxx.github.io
+(https://onehoneh.github.io/QQzhouyizhanbu/)
 
 功能：
 
